@@ -146,8 +146,45 @@ values for those fields from the provided object into the target buffer.
     // Read/write at an offset
     var iobuf2 = new Buffer([1,2,3,4,5,6,7,8,9,10,11]);
     ledef.write(ledata, iobuf2, 2);
-    assert.equal('0102'+iobuf.toString('hex')+'0a0b', iobuf2.toString('hex'));
+    assert.equal(iobuf2.toString('hex'), '0102'+iobuf.toString('hex')+'0a0b');
 
+    // write() with no parameters creates a new buffer
+    assert.equal(ledef.write().toString('hex'), iobuf.toString('hex'));
+
+## Default Values
+
+When adding a numeric field you can specify a parameter with a "default"
+for that field.  This will be applied during a write() operation if that
+field is not provided.
+
+    assert.equal(require('binstruct').def()
+                 .byte(1)
+                 .byte(2)
+                 .write().toString('hex'),
+                 '0102');
+
+When using a wrapper you can request that the default values be written
+by calling writeValues() on the result of wrap();
+
+    var buf = new Buffer(2);
+    require('binstruct').def()
+                 .byte(1)
+                 .byte(2)
+                 .wrap(buf)
+                 .writeValues();
+    assert.equal(buf.toString('hex'), '0102');
+
+## Size Check
+
+When defining a structure you are probably implementing something from
+a third part.  As a sanity check, it's helpful to verify the structure
+you've defined is the right size.  Do this by adding checkSize(size) to
+the end of your definition.  For example:
+
+    require('binstruct').def()
+        .uint64('x')
+        .uint32('y') // Simulated copy/paste error using 32 instead of 64
+        .checkSize(16); // throws an error!
 
 ## Installation
 

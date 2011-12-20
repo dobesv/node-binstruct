@@ -40,6 +40,29 @@ function StructDef(opts) {
 			'_def', {value:this,writable:false});
 	Object.defineProperty(this.Wrapper.prototype,
 			'_fields', {get:function() { return this._def.fields; }});
+
+	// Check if each field equals its default value
+	this.Wrapper.prototype.checkValues = function() {
+		var wrapper = this;
+		var assert = require('assert');
+		this._fields.forEach(function(f) {
+			if('value' in f) {
+				assert.equal(wrapper[f.name], f.value, f.name);
+			}
+		});
+		return this;
+	};
+
+	// Write default values into the fields
+	this.Wrapper.prototype.writeValues = function() {
+		var wrapper = this;
+		this._fields.forEach(function(f) {
+			if('value' in f) {
+				wrapper[f.name] = f.value;
+			}
+		});
+		return this;
+	};
 }
 
 StructDef.prototype.field = function defineField(f) {
@@ -63,10 +86,11 @@ StructDef.prototype.field = function defineField(f) {
 		};
 	}
 	Object.defineProperty(this.Wrapper.prototype, name, desc);
+	Object.defineProperty(this, name, {value:f});
 	return this;
 };
 
- function createInt64Reader(signed, littleEndian) {
+function createInt64Reader(signed, littleEndian) {
 	var reader;
 	reader = function readInt64AsNumber(offset, noAssert, def, field) {
 		// "this" should be a Buffer
@@ -173,7 +197,7 @@ function setupDefiners() {
 				if(!arg) {
 					// Ignore null, false, etc I guess ...
 				} else if(Buffer.isBuffer(arg) || typeof(arg) === 'number') {
-					f.defaultValue = arg;
+					f.value = arg;
 				} else if(typeof(arg) === 'string') {
 					f.name = arg;
 				} else if(typeof(arg) === 'object') {
@@ -268,13 +292,20 @@ StructDef.prototype.pack = StructDef.prototype.write = function writeFieldsIntoB
 	if(typeof(offset) === 'undefined') {
 		offset = 0;
 	}
+	if(typeof(buf) === 'undefined') {
+		buf = new Buffer(this.size + offset);
+	}
+	if(typeof(data) == 'undefined') {
+		data = {}; // Write all zeroes and defaults
+	}
 	this.fields.forEach(function writeField(f) {
 		var writeImpl = f.write;
 		if(writeImpl) {
-			writeImpl.apply(buf, [data[f.name], offset + f.offset, noAssert]);
+			var value = (f.name in data ? data[f.name] : f.value) || 0;
+			writeImpl.apply(buf, [value, offset + f.offset, noAssert]);
 		}
 	});
-	return this;
+	return buf;
 };
 
 exports.def = function createNewStructDef(opts) {

@@ -260,3 +260,29 @@ var iobuf2 = new Buffer([1,2,3,4,5,6,7,8,9,10,11]);
 ledef.write(ledata, iobuf2, 2);
 assert.equal('0102'+iobuf.toString('hex')+'0a0b', iobuf2.toString('hex'));
 
+// write() with no parameters creates a new buffer
+assert.equal(ledef.write(ledata).toString('hex'), iobuf.toString('hex'));
+
+// Test default values on write()
+assert.equal(binstruct.def().uint32(0x01020304).write().toString('hex'),
+		     '01020304');
+
+//Test default values on writeValues() and checkValues() on a wrapper
+var buf = new Buffer(2);
+binstruct.def()
+     .byte(1)
+     .byte(2)
+     .wrap(buf)
+     .writeValues();
+assert.equal(buf.toString('hex'), '0102');
+
+var goodBuf = new Buffer([1,2]);
+var badBuf = new Buffer(2);
+
+assert.doesNotThrow(function() {
+	binstruct.def().uint16(0x0102).wrap(goodBuf).checkValues();
+});
+assert.throws(function() {
+	binstruct.def().uint16(0x0102).wrap(badBuf).checkValues();
+});
+

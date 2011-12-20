@@ -1,6 +1,6 @@
 {
     "name":"binstruct",
-    "version":"0.1.1",
+    "version":"0.1.2",
     "description":"Read/write binary data structures to/from buffers.",
     "keywords":["binary","bin","buffers","struct","unpack","pack","serialization"],
     "main":"binstruct",
