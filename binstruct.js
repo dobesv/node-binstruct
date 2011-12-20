@@ -59,7 +59,6 @@ StructDef.prototype.field = function defineField(f) {
 	var writeImpl = f.write;
 	if(writeImpl) {
 		desc.set = function(value) {
-			console.log('Called setter', name, value);
 			return writeImpl.apply(this._buffer, [value, offset, this.noAssert, this, f]);
 		};
 	}
@@ -245,7 +244,7 @@ StructDef.prototype.wrap = function wrapBuf(buf) {
 	return wrapper;
 };
 
-StructDef.prototype.unpack = function readFieldsFromBuf(buf, offset, noAssert) {
+StructDef.prototype.unpack = StructDef.prototype.read = function readFieldsFromBuf(buf, offset, noAssert) {
 	var data = {};
 	if(typeof(noAssert) === 'undefined') {
 		noAssert = this.noAssert;
@@ -259,9 +258,10 @@ StructDef.prototype.unpack = function readFieldsFromBuf(buf, offset, noAssert) {
 			data[f.name] = readImpl.apply(buf, [offset + f.offset, noAssert]);
 		}
 	});
+	return data;
 };
 
-StructDef.prototype.pack = function writeFieldsIntoBuf(data, buf, offset, noAssert) {
+StructDef.prototype.pack = StructDef.prototype.write = function writeFieldsIntoBuf(data, buf, offset, noAssert) {
 	if(typeof(noAssert) === 'undefined') {
 		noAssert = this.noAssert;
 	}
@@ -274,6 +274,7 @@ StructDef.prototype.pack = function writeFieldsIntoBuf(data, buf, offset, noAsse
 			writeImpl.apply(buf, [data[f.name], offset + f.offset, noAssert]);
 		}
 	});
+	return this;
 };
 
 exports.def = function createNewStructDef(opts) {

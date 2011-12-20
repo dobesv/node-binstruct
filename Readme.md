@@ -111,21 +111,54 @@ read the structure.
         .byte('a')
         .byte('b')
         .wrap(buf);
-    console.log(twoBytes.a, twoBytes.b); // 'a', 'b'
+    assert.equal(String.fromCharCode(twoBytes.a), 'a');
+    assert.equal(String.fromCharCode(twoBytes.b), 'b');
     twoBytes.a = 'x';
     twoBytes.b = 'y';
-    console.log(buf.toString('utf8')); // 'xy'
+    assert.equal(String.fromCharCode(buf[0]), 'x');
+    assert.equal(String.fromCharCode(buf[1]), 'y');
+    var offsetBy1 = binstruct.def().byte('b').wrap(buf, 1);
+    assert.equal(String.fromCharCode(offsetBy1.b), 'y');
 
 ## Pack/Unpack Buffers To/From Objects
 
 The library allows you to 'pack' an object into a Buffer and 'unpack'
 an object from a Buffer.
 
-The 'unpack' operation goes through all the fields defined and populates
+The 'read' operation goes through all the fields defined and populates
 them into a new object and returns it.  Unlike with a wrapper, changes to
 that object will not affect the underlying buffer.
 
-The 'pack' operation goes through all the fields defined and encodes the
+The 'write' operation goes through all the fields defined and encodes the
 values for those fields from the provided object into the target buffer.
 
+    iobuf = new Buffer([1,2,3,4,5,6,7]);
+    var ledef = binstruct.def().uint32le('val').uint16le('short').byte('b');
+    var ledata = ledef.read(iobuf);
+    assert.equal(0x04030201, ledata.val);
+    ledata.val = 0x05060708;
+    ledata.short = 0x090a;
+    ledata.b = 0xb;
+    assert.equal('01020304050607', iobuf.toString('hex'));
+    ledef.write(ledata, iobuf);
+    assert.equal('080706050a090b', iobuf.toString('hex'));
+
+    // Read/write at an offset
+    var iobuf2 = new Buffer([1,2,3,4,5,6,7,8,9,10,11]);
+    ledef.write(ledata, iobuf2, 2);
+    assert.equal('0102'+iobuf.toString('hex')+'0a0b', iobuf2.toString('hex'));
+
+
+## Installation
+
+Install using npm:
+
+    npm install binstruct
+
+## Future work
+
+ - String and buffer fields
+ - Sub-structures
+ - Arrays of types
+ - Dynamically sized arrays, strings, buffers
 

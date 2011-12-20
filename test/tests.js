@@ -156,56 +156,107 @@ assert.equal(ube.n, 0xff00);
 assert.equal(ube.p, 0xff000000);
 assert.equal(ube.q, 255);
 
+
 // Now test some floating point numbers
-assert.equal(binstruct.def({littleEndian:true})
+// Need a comparison that allows for the fact that floats have some
+// error during encoding/decoding.
+assert.equalFloat = function(actual, expected, marginForError, message) {
+	if(typeof(marginForError) === 'undefined') {
+		marginForError = 0.000001;
+	}
+	// Check if we're within the margin of error
+	if(Math.abs(expected-actual) <= marginForError) {
+		return;
+	}
+	// Otherwise, pass along to assert.equal and let it throw the error
+	assert.equal(actual, expected, message);
+};
+
+assert.equalFloat(binstruct.def({littleEndian:true})
 		.double('val')
 		.wrap(new Buffer('97d17e5afb210940', 'hex'))
 		.val, 3.1415927);
-assert.equal(binstruct.def({littleEndian:true})
+assert.equalFloat(binstruct.def({littleEndian:true})
 		.double('val')
 		.wrap(new Buffer('295c8fc2d51cc8c0', 'hex'))
 		.val, -12345.67);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.doublele('val')
 		.wrap(new Buffer('97d17e5afb210940', 'hex'))
 		.val, 3.1415927);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.double('val')
 		.wrap(new Buffer('400921fb5a7ed197', 'hex'))
 		.val, 3.1415927);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.doublebe('val')
 		.wrap(new Buffer('400921fb5a7ed197', 'hex'))
 		.val, 3.1415927);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.double('val')
 		.wrap(new Buffer('c0c81cd5c28f5c29', 'hex'))
 		.val, -12345.67);
 
-assert.equal(binstruct.def({littleEndian:true})
+assert.equalFloat(binstruct.def({littleEndian:true})
 		.float('val')
 		.wrap(new Buffer('c3f54840', 'hex'))
 		.val, 3.14);
-assert.equal(binstruct.def({littleEndian:true})
+assert.equalFloat(binstruct.def({littleEndian:true})
 		.float('val')
 		.wrap(new Buffer('a47045c1', 'hex'))
 		.val, -12.34);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.floatle('val')
 		.wrap(new Buffer('c3f54840', 'hex'))
 		.val, 3.14);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.float('val')
 		.wrap(new Buffer('4048f5c3', 'hex'))
 		.val, 3.14);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.floatbe('val')
 		.wrap(new Buffer('4048f5c3', 'hex'))
 		.val, 3.14);
-assert.equal(binstruct.def()
+assert.equalFloat(binstruct.def()
 		.float('val')
 		.wrap(new Buffer('c14570a4', 'hex'))
 		.val, -12.34);
 
 // Test read/write via a wrapper
+var iobuf = new Buffer([1,2,3,4]);
+var le32 = binstruct.def().uint32le('val').wrap(iobuf);
+var be32 = binstruct.def().uint32be('val').wrap(iobuf);
+le32.val = be32.val;
+assert.equal('04030201', iobuf.toString('hex'));
+be32.val = le32.val;
+assert.equal('01020304', iobuf.toString('hex'));
+var lepair = binstruct.def().uint16le('a').uint16le('b').wrap(iobuf);
+var bepair = binstruct.def().uint16be('a').uint16be('b').wrap(iobuf);
+lepair.a = lepair.b;
+assert.equal('03040304', iobuf.toString('hex'));
+bepair.a = lepair.a;
+assert.equal('04030304', iobuf.toString('hex'));
+bepair.b = 0x0807;
+assert.equal('04030807', iobuf.toString('hex'));
+lepair.a = 0x0807;
+assert.equal('07080807', iobuf.toString('hex'));
+
+// Test read/write using an object
+iobuf = new Buffer([1,2,3,4,5,6,7]);
+var ledef = binstruct.def().uint32le('val').uint16le('short').byte('b');
+var ledata = ledef.read(iobuf);
+assert.equal(0x04030201, ledata.val);
+assert.equal(0x0605, ledata.short);
+assert.equal(0x07, ledata.b);
+ledata.val = 0x05060708;
+ledata.short = 0x090a;
+ledata.b = 0xb;
+assert.equal('01020304050607', iobuf.toString('hex'));
+ledef.write(ledata, iobuf);
+assert.equal('080706050a090b', iobuf.toString('hex'));
+
+// Read/write at an offset
+var iobuf2 = new Buffer([1,2,3,4,5,6,7,8,9,10,11]);
+ledef.write(ledata, iobuf2, 2);
+assert.equal('0102'+iobuf.toString('hex')+'0a0b', iobuf2.toString('hex'));
 
