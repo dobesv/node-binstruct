@@ -5,5 +5,6 @@
     "keywords":["binary","bin","buffers","struct","unpack","pack","serialization"],
     "main":"binstruct",
     "repository" : { "type" : "git", "url" : "http://github.com/dobesv/node-binstruct.git" },
-    "files":["binstruct.js", "AUTHORS", "package.json", "Readme.md"]
+    "files":["binstruct.js", "AUTHORS", "package.json", "Readme.md"],
+    "engines":{"node":">=0.6.0"}
 }
