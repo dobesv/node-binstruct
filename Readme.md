@@ -174,6 +174,18 @@ by calling writeValues() on the result of wrap();
                  .writeValues();
     assert.equal(buf.toString('hex'), '0102');
 
+When using a wrapper you can check whether the values in the buffer are
+equal to the default values specified.  This can be helpful if you are
+looking for a certain "signature" in the file that identifies the file
+format or data structure you are working with.
+
+    assert.doesNotThrow(function() {
+        binstruct.def().uint16(0x0102).wrap(new Buffer([1,2])).checkValues();
+    });
+    assert.throws(function() {
+        binstruct.def().uint16(0x0102).wrap(new Buffer([5,6])).checkValues();
+    });
+
 ## Size Check
 
 When defining a structure you are probably implementing something from
@@ -198,4 +210,5 @@ Install using npm:
  - Sub-structures
  - Arrays of types
  - Dynamically sized arrays, strings, buffers
+ - Computed values / sizes (using functions instead of constants)
 

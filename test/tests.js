@@ -276,14 +276,11 @@ binstruct.def()
      .writeValues();
 assert.equal(buf.toString('hex'), '0102');
 
-var goodBuf = new Buffer([1,2]);
-var badBuf = new Buffer(2);
-
 assert.doesNotThrow(function() {
-	binstruct.def().uint16(0x0102).wrap(goodBuf).checkValues();
+	binstruct.def().uint16(0x0102).wrap(new Buffer([1,2])).checkValues();
 });
 assert.throws(function() {
-	binstruct.def().uint16(0x0102).wrap(badBuf).checkValues();
+	binstruct.def().uint16(0x0102).wrap(new Buffer([5,6])).checkValues();
 });
 
 // Does checkSize() really check the size?
