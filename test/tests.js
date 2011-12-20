@@ -286,3 +286,10 @@ assert.throws(function() {
 	binstruct.def().uint16(0x0102).wrap(badBuf).checkValues();
 });
 
+// Does checkSize() really check the size?
+assert.doesNotThrow(function() {
+	binstruct.def().uint16(0x0102).checkSize(2);
+});
+assert.throws(function() {
+	binstruct.def().uint16(0x0102).checkSize(7);
+});
