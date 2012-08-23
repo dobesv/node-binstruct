@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/dobesv/node-binstruct.png)](http://travis-ci.org/dobesv/node-binstruct)
 
 ## Binary Structure Helper
 
