@@ -190,7 +190,7 @@ format or data structure you are working with.
 ## Size Check
 
 When defining a structure you are probably implementing something from
-a third part.  As a sanity check, it's helpful to verify the structure
+a third party.  As a sanity check, it's helpful to verify the structure
 you've defined is the right size.  Do this by adding checkSize(size) to
 the end of your definition.  For example:
 
