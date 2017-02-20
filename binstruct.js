@@ -150,12 +150,19 @@ function createInt64Reader(signed, littleEndian) {
 function createInt64Writer(signed, littleEndian) {
 	var writer = function writeInt64(val, offset, noAssert) {
 		// "this" is a Buffer
-		if(val instanceof 'number') {
+		if(!Buffer.isBuffer(this))
+			throw 'this is not a buffer'
+		if(typeof(val) == 'number') {
 			var hi = val >> 32;
 			var lo = val & 0xFFFFFFFF;
 
-			this.writeUInt32(hi, offset+(littleEndian?4:0), noAssert);
-			this.writeUInt32(lo, offset+(littleEndian?0:4), noAssert);
+			if(littleEndian) {
+				this.writeUInt32LE(hi, offset+4, noAssert);
+				this.writeUInt32LE(lo, offset+0, noAssert);
+			} else {
+				this.writeUInt32BE(hi, offset+0, noAssert);
+				this.writeUInt32BE(lo, offset+4, noAssert);
+			}
 		} else if(Buffer.isBuffer(val)) {
 			if(val.length != 8) {
 				throw new Error('Buffer used as int64 field must be 8 bytes long!');
@@ -279,7 +286,7 @@ StructDef.prototype.unpack = StructDef.prototype.read = function readFieldsFromB
 	this.fields.forEach(function readField(f) {
 		var readImpl = f.read;
 		if(readImpl) {
-			data[f.name] = readImpl.apply(buf, [offset + f.offset, noAssert]);
+			data[f.name] = readImpl.apply(buf, [offset + f.offset, noAssert, this, f]);
 		}
 	});
 	return data;

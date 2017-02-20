@@ -1,6 +1,8 @@
 var assert = require('assert'),
     binstruct = require('../binstruct');
 
+// 01020304050607000f010203040f00000f010203040f000100000000000001ffff00000000ffff01020304050607080102030405060708f3ffff00ffff00ff0
+// 01020304050607030f0f02030f0f02030f0f02030f0f020000000000000000000000000000000001020304050607080102030405060708f3ffff00ffff00ff0
 var buf = new Buffer([1,
                       2,3,
                       4,5,6,7,
@@ -19,7 +21,7 @@ var buf = new Buffer([1,
                       ]);
 
 // Read signed little endian values from a buffer
-var sle = binstruct.def()
+var ssl = binstruct.def()
 	.int8('a')
 	.int16le('b')
 	.int32le('c')
@@ -34,26 +36,28 @@ var sle = binstruct.def()
 	.int16le('m')
 	.int16le('n')
 	.int32le('p')
-	.int32le('q')
-	.wrap(buf);
-assert.equal(sle.a, 1);
-assert.equal(sle.b, 2 | (3 << 8));
-assert.equal(sle.c, 4 | (5 << 8) | (6 << 16) | (7 << 24));
-assert.equal(sle.d, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
-assert.equal(sle.e, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
-assert.equal(sle.f, Infinity);
-assert.equal(sle.g, -Infinity);
-assert.equal(sle.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(sle.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(sle.j, -13);
-assert.equal(sle.k, -1);
-assert.equal(sle.m, -256);
-assert.equal(sle.n, 255);
-assert.equal(sle.p, 255);
-assert.equal(sle.q, -16777216);
+	.int32le('q');
+	
+[ssl.wrap(buf), ssl.unpack(buf)].forEach((sle) => {
+	assert.equal(sle.a, 1);
+	assert.equal(sle.b, 2 | (3 << 8));
+	assert.equal(sle.c, 4 | (5 << 8) | (6 << 16) | (7 << 24));
+	assert.equal(sle.d, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
+	assert.equal(sle.e, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
+	assert.equal(sle.f, Infinity);
+	assert.equal(sle.g, -Infinity);
+	assert.equal(sle.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(sle.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(sle.j, -13);
+	assert.equal(sle.k, -1);
+	assert.equal(sle.m, -256);
+	assert.equal(sle.n, 255);
+	assert.equal(sle.p, 255);
+	assert.equal(sle.q, -16777216);
+});
 
 // Read signed big-endian values from a buffer
-var sbe = binstruct.def()
+var ssb = binstruct.def()
 	.int8('a')
 	.int16be('b')
 	.int32be('c')
@@ -68,27 +72,28 @@ var sbe = binstruct.def()
 	.int16be('m')
 	.int16be('n')
 	.int32be('p')
-	.int32be('q')
-	.wrap(buf);
+	.int32be('q');
 
-assert.equal(sbe.a, 1);
-assert.equal(sbe.b, 3 | (2 << 8));
-assert.equal(sbe.c, 7 | (6 << 8) | (5 << 16) | (4 << 24));
-assert.equal(sbe.d, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
-assert.equal(sbe.e, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
-assert.equal(sbe.f, Infinity);
-assert.equal(sbe.g, -Infinity);
-assert.equal(sbe.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(sbe.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(sbe.j, -13);
-assert.equal(sbe.k, -1);
-assert.equal(sbe.m, 255);
-assert.equal(sbe.n, -256);
-assert.equal(sbe.p, -16777216);
-assert.equal(sbe.q, 255);
+[ssb.wrap(buf), ssb.unpack(buf)].forEach((sbe) => {
+	assert.equal(sbe.a, 1);
+	assert.equal(sbe.b, 3 | (2 << 8));
+	assert.equal(sbe.c, 7 | (6 << 8) | (5 << 16) | (4 << 24));
+	assert.equal(sbe.d, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
+	assert.equal(sbe.e, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
+	assert.equal(sbe.f, Infinity);
+	assert.equal(sbe.g, -Infinity);
+	assert.equal(sbe.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(sbe.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(sbe.j, -13);
+	assert.equal(sbe.k, -1);
+	assert.equal(sbe.m, 255);
+	assert.equal(sbe.n, -256);
+	assert.equal(sbe.p, -16777216);
+	assert.equal(sbe.q, 255);
+});
 
 // Read unsigned little-endian values from a buffer
-var ule = binstruct.def()
+var ssl = binstruct.def()
 	.uint8('a')
 	.uint16le('b')
 	.uint32le('c')
@@ -103,26 +108,28 @@ var ule = binstruct.def()
 	.uint16le('m')
 	.uint16le('n')
 	.uint32le('p')
-	.uint32le('q')
-	.wrap(buf);
-assert.equal(ule.a, 1);
-assert.equal(ule.b, 2 | (3 << 8));
-assert.equal(ule.c, 4 | (5 << 8) | (6 << 16) | (7 << 24));
-assert.equal(ule.d, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
-assert.equal(ule.e, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
-assert.equal(ule.f, Infinity);
-assert.equal(ule.g, Infinity);
-assert.equal(ule.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(ule.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(ule.j, 243);
-assert.equal(ule.k, 65535);
-assert.equal(ule.m, 65280);
-assert.equal(ule.n, 255);
-assert.equal(ule.p, 255);
-assert.equal(ule.q, 0xff000000);
+	.uint32le('q');
+	
+[ssl.wrap(buf), ssl.unpack(buf)].forEach((ule) => {
+	assert.equal(ule.a, 1);
+	assert.equal(ule.b, 2 | (3 << 8));
+	assert.equal(ule.c, 4 | (5 << 8) | (6 << 16) | (7 << 24));
+	assert.equal(ule.d, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
+	assert.equal(ule.e, (15 << 8) | (1 << 16) | (2 << 24) | (3 << 32) | (4 << 40) | (15 << 48));
+	assert.equal(ule.f, Infinity);
+	assert.equal(ule.g, Infinity);
+	assert.equal(ule.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(ule.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(ule.j, 243);
+	assert.equal(ule.k, 65535);
+	assert.equal(ule.m, 65280);
+	assert.equal(ule.n, 255);
+	assert.equal(ule.p, 255);
+	assert.equal(ule.q, 0xff000000);
+});
 
 // Read unsigned big-endian values from a buffer
-var ube = binstruct.def()
+var ssb = binstruct.def({int64mode:'int64'})
 	.byte('a')
 	.uint16be('b')
 	.uint32be('c')
@@ -137,25 +144,25 @@ var ube = binstruct.def()
 	.uint16be('m')
 	.uint16be('n')
 	.uint32be('p')
-	.uint32be('q')
-	.wrap(buf);
-
-assert.equal(ube.a, 1);
-assert.equal(ube.b, 3 | (2 << 8));
-assert.equal(ube.c, 7 | (6 << 8) | (5 << 16) | (4 << 24));
-assert.equal(ube.d, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
-assert.equal(ube.e, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
-assert.equal(ube.f, Infinity);
-assert.equal(ube.g, Infinity);
-assert.equal(ube.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(ube.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
-assert.equal(ube.j, 243);
-assert.equal(ube.k, 65535);
-assert.equal(ube.m, 255);
-assert.equal(ube.n, 0xff00);
-assert.equal(ube.p, 0xff000000);
-assert.equal(ube.q, 255);
-
+	.uint32be('q');
+	
+[ssb.wrap(buf), ssb.unpack(buf)].forEach((ube) => {
+	assert.equal(ube.a, 1);
+	assert.equal(ube.b, 3 | (2 << 8));
+	assert.equal(ube.c, 7 | (6 << 8) | (5 << 16) | (4 << 24));
+	assert.equal(ube.d, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
+	assert.equal(ube.e, (15 << 8) | (4 << 16) | (3 << 24) | (2 << 32) | (1 << 40) | (15 << 48));
+	assert.equal(ube.f, Infinity);
+	assert.equal(ube.g, Infinity);
+	assert.equal(ube.h.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(ube.i.toString('hex'), new Buffer([1,2,3,4,5,6,7,8]).toString('hex'));
+	assert.equal(ube.j, 243);
+	assert.equal(ube.k, 65535);
+	assert.equal(ube.m, 255);
+	assert.equal(ube.n, 0xff00);
+	assert.equal(ube.p, 0xff000000);
+	assert.equal(ube.q, 255);
+});
 
 // Now test some floating point numbers
 // Need a comparison that allows for the fact that floats have some
