@@ -38,7 +38,7 @@ var ssl = binstruct.def()
 	.int32le('p')
 	.int32le('q');
 	
-[ssl.wrap(buf), ssl.unpack(buf)].forEach((sle) => {
+[ssl.wrap(buf), ssl.unpack(buf)].forEach(function(sle) {
 	assert.equal(sle.a, 1);
 	assert.equal(sle.b, 2 | (3 << 8));
 	assert.equal(sle.c, 4 | (5 << 8) | (6 << 16) | (7 << 24));
@@ -74,7 +74,7 @@ var ssb = binstruct.def()
 	.int32be('p')
 	.int32be('q');
 
-[ssb.wrap(buf), ssb.unpack(buf)].forEach((sbe) => {
+[ssb.wrap(buf), ssb.unpack(buf)].forEach(function(sbe) {
 	assert.equal(sbe.a, 1);
 	assert.equal(sbe.b, 3 | (2 << 8));
 	assert.equal(sbe.c, 7 | (6 << 8) | (5 << 16) | (4 << 24));
@@ -110,7 +110,7 @@ var ssl = binstruct.def()
 	.uint32le('p')
 	.uint32le('q');
 	
-[ssl.wrap(buf), ssl.unpack(buf)].forEach((ule) => {
+[ssl.wrap(buf), ssl.unpack(buf)].forEach(function(ule) {
 	assert.equal(ule.a, 1);
 	assert.equal(ule.b, 2 | (3 << 8));
 	assert.equal(ule.c, 4 | (5 << 8) | (6 << 16) | (7 << 24));
@@ -146,7 +146,7 @@ var ssb = binstruct.def({int64mode:'int64'})
 	.uint32be('p')
 	.uint32be('q');
 	
-[ssb.wrap(buf), ssb.unpack(buf)].forEach((ube) => {
+[ssb.wrap(buf), ssb.unpack(buf)].forEach(function(ube) {
 	assert.equal(ube.a, 1);
 	assert.equal(ube.b, 3 | (2 << 8));
 	assert.equal(ube.c, 7 | (6 << 8) | (5 << 16) | (4 << 24));
