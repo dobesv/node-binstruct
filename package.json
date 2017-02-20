@@ -4,6 +4,7 @@
     "description":"Read/write binary data structures to/from buffers.",
     "keywords":["binary","bin","buffers","struct","unpack","pack","serialization"],
     "main":"binstruct",
+    "scripts": { "test" : "node test/tests.js" },
     "repository" : { "type" : "git", "url" : "http://github.com/dobesv/node-binstruct.git" },
     "files":["binstruct.js", "AUTHORS", "package.json", "Readme.md"],
     "engines":{"node":">=0.6.0"}
